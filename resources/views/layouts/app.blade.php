@@ -46,16 +46,38 @@
                 <div class="collapse navbar-collapse" id="app-navbar-collapse">
                     <!-- Left Side Of Navbar -->
                     <ul class="nav navbar-nav">
-                        &nbsp;
+                        @if (Auth::check())
+                          @can ('view_users')
+                            <li class="{{Request::is('users*') ? 'active' : ''}}">
+                              <a href="{{route('users.index')}}">
+                                <span class="text-info glyphicon glyphicon-user"></span> Users
+                              </a>
+                            </li>
+                          @endcan
+                          @can ('view_posts')
+                            <li class="{{Request::is('posts*') ? 'active' : ''}}">
+                              <a href="{{route('posts.index')}}">
+                                <span class="text-success glyphicon gglyphicon-text-background"></span> Posts
+                              </a>
+                            </li>
+                          @endcan
+                        @endif
                     </ul>
 
                     <!-- Right Side Of Navbar -->
                     <ul class="nav navbar-nav navbar-right">
                         <!-- Authentication Links -->
-                        @guest
+                        @if (Auth::guest())
                             <li><a href="{{ route('login') }}">Login</a></li>
                             <li><a href="{{ route('register') }}">Register</a></li>
                         @else
+                          @can ('view_roles')
+                            <li class="{{Request::is('roles*') ? 'active' : ''}}">
+                              <a href="{{route('roles.index')}}">
+                                <span class="text-danger glyphicon glglyphicon-lock"></span> Roles
+                              </a>
+                            </li>
+                          @endcan
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true">
                                     {{ Auth::user()->name }} <span class="caret"></span>
@@ -75,16 +97,30 @@
                                     </li>
                                 </ul>
                             </li>
-                        @endguest
+                        @endif
                     </ul>
                 </div>
             </div>
         </nav>
 
-        @yield('content')
+        <div class="container">
+          <div id="flash-msg">
+            @include('flash::message')
+          </div>
+          @yield('content')
+        </div>
     </div>
 
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}"></script>
+
+    @stack('scripts')
+
+    <script>
+      $(function () {
+        // flash auto hide
+        $('#flash-msg .alert').not('.alert-danger, .alert-important').delay(6000).slideup(500);
+      })
+    </script>
 </body>
 </html>
